@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seni Seviyorum</title>
+
+<style>
+    body {
+        margin: 0;
+        background: linear-gradient(135deg, #ffd6f5, #e3f0ff);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial;
+        overflow: hidden;
+    }
+
+    .card {
+        background: white;
+        width: 350px;
+        padding: 25px;
+        text-align: center;
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(255, 0, 180, 0.3);
+    }
+
+    #yesBtn {
+        background: #ff9ada;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    #noBtn {
+        background: #ddd;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .animation-screen {
+        position: fixed;
+        inset: 0;
+        background: black;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .love-text {
+        color: #ffe6ff;
+        font-size: 45px;
+        margin-top: -100px;
+        text-shadow: 0 0 40px #ff99dd, 0 0 80px #90caff;
+        font-weight: bold;
+        position: absolute;
+        top: 60%;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="card" id="card">
+    <h2>DOĞUM GÜNÜN KUTLU OLSUN HEDİYEYİ KABUL EDİYOR MUSUN? 💗</h2>
+    <button id="yesBtn">Evet 💞</button>
+    <button id="noBtn">Hayır </button>
+</div>
+
+<div class="animation-screen" id="animScreen">
+    <canvas id="starCanvas"></canvas>
+    <canvas id="heartCanvas"></canvas>
+
+    <div class="love-text">Seni yıldızlar kadar seviyorum ✨</div>
+</div>
+
+<script>
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const card = document.getElementById("card");
+const anim = document.getElementById("animScreen");
+const canvas = document.getElementById("heartCanvas");
+const starCanvas = document.getElementById("starCanvas");
+
+const ctx = canvas.getContext("2d");
+const sctx = starCanvas.getContext("2d");
+
+// YES butonuna basılınca animasyon açılır
+yesBtn.addEventListener("click", () => {
+    card.style.display = "none";
+    anim.style.display = "flex";
+
+    startGalaxyBackground();
+    startHeartParticles();
+});
+
+// Kaçan hayır butonu
+noBtn.addEventListener("mouseover", () => {
+    noBtn.style.position = "absolute";
+    noBtn.style.left = Math.random() * 70 + "%";
+    noBtn.style.top = Math.random() * 70 + "%";
+});
+
+// ------------------------------
+// ⭐ GALAXY BACKGROUND
+// ------------------------------
+function startGalaxyBackground() {
+    starCanvas.width = window.innerWidth;
+    starCanvas.height = window.innerHeight;
+
+    const stars = [];
+    for (let i = 0; i < 200; i++) {
+        stars.push({
+            x: Math.random() * starCanvas.width,
+            y: Math.random() * starCanvas.height,
+            size: Math.random() * 2,
+            speed: Math.random() * 0.3 + 0.1
+        });
+    }
+
+    function drawStars() {
+        sctx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+        sctx.fillStyle = "white";
+
+        stars.forEach(s => {
+            s.y += s.speed;
+            if (s.y > starCanvas.height) s.y = 0;
+
+            sctx.beginPath();
+            sctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            sctx.fill();
+        });
+
+        requestAnimationFrame(drawStars);
+    }
+
+    drawStars();
+}
+
+// ------------------------------
+// 💗 HEART PARTICLE ANIMATION
+// ------------------------------
+function startHeartParticles() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const count = 1200; // yoğunluk
+
+    function heartPos(t) {
+        return {
+            x: 16 * Math.pow(Math.sin(t), 3),
+            y:
+                13 * Math.cos(t) -
+                5 * Math.cos(2 * t) -
+                2 * Math.cos(3 * t) -
+                Math.cos(4 * t)
+        };
+    }
+
+    for (let i = 0; i < count; i++) {
+        let t = Math.random() * Math.PI * 2;
+        let pos = heartPos(t);
+
+        particles.push({
+            t: t,
+            x: canvas.width / 2 + pos.x * 18,
+            y: canvas.height / 2 - pos.y * 18,
+            size: Math.random() * 2 + 1,
+            speed: Math.random() * 0.015 + 0.005,
+            // açık pembe + açık mavi + beyaz karışımı
+            color: ["#ffb5e8", "#b5deff", "#ffffff"][Math.floor(Math.random() * 3)]
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+            p.t += p.speed;
+
+            const pos = heartPos(p.t);
+            p.x = canvas.width / 2 + pos.x * 18;
+            p.y = canvas.height / 2 - pos.y * 18;
+
+            ctx.beginPath();
+            ctx.fillStyle = p.color;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = p.color;
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        requestAnimationFrame(draw);
+    }
+
+    draw();
+}
+</script>
+</body>
+</html>
